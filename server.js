@@ -4,7 +4,7 @@ const Movie = require('./models/movie');
 const movieRoutes = require('./routes/movie-routes');
 
 const PORT = 3000;
-const URL = 'mongodb://localhost:27017/movieBox';
+const URL = "mongodb+srv://VladimirFilimonov:Pass123@cluster0.uq68dmo.mongodb.net/moviebox?retryWrites=true&w=majority&appName=Cluster0";
 
 const app = express();
 app.use(express.json());
