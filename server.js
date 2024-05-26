@@ -1,5 +1,6 @@
 const express = require('express');
 const { connectToDb, getDb } = require('./db');
+const { ObjectId } = require('mongodb');  // Импортируем ObjectId
 
 const PORT = 3000;
 
@@ -25,31 +26,24 @@ const handleError = (res, error) => {
 app.get('/movies', (req, res) => {
     const movies = [];
 
-    db
-        .collection('movies')
+    db.collection('movies')
         .find()
         .sort({ title: 1 })
         .forEach((movie) => movies.push(movie))
         .then(() => {
-            res
-                .status(200)
-                .json(movies);
+            res.status(200).json(movies);
         })
         .catch(() => {
-            res
-                .status(500)
-                .json({ error: "Something goes wrong..." })
-        })
+            res.status(500).json({ error: "Something goes wrong..." });
+        });
 });
+
 app.get('/movies/:id', (req, res) => {
     if (ObjectId.isValid(req.params.id)) {
-        db
-            .collection('movies')
-            .findOne({ _id: ObjectId(req.params.id) })
+        db.collection('movies')
+            .findOne({ _id: new ObjectId(req.params.id) })  // Используем оператор new
             .then((doc) => {
-                res
-                    .status(200)
-                    .json(doc);
+                res.status(200).json(doc);
             })
             .catch(() => handleError(res, "Something goes wrong..."));
     } else {
