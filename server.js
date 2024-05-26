@@ -1,27 +1,26 @@
 const express = require('express');
-const { connectToDb, getDb } = require('./db');
-const { ObjectId } = require('mongodb');  // Импортируем ObjectId
+const mongoose = require('mongoose');
+const {ObjectId} = require('mongodb');  // Импортируем ObjectId
 
 const PORT = 3000;
+const URL = 'mongodb://localhost:27017/movieBox';
 
 const app = express();
 app.use(express.json());
 
+mongoose
+    .connect(URL)
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((err) => console.log(`DB connection error: ${err}`));
+
+    app.listen(PORT, (err) => {
+        err ? console.log(err) : console.log(`listening port ${PORT}`);
+    });
+
 let db;
 
-connectToDb((err) => {
-    if (!err) {
-        app.listen(PORT, (err) => {
-            err ? console.log(err) : console.log(`listening port ${PORT}`);
-        });
-        db = getDb();
-    } else {
-        console.log(`DB connection error: ${err}`);
-    }
-});
-
 const handleError = (res, error) => {
-    res.status(500).json({ error });
+    res.status(500).json({error});
 }
 
 app.get('/movies', (req, res) => {
@@ -29,7 +28,7 @@ app.get('/movies', (req, res) => {
 
     db.collection('movies')
         .find()
-        .sort({ title: 1 })
+        .sort({title: 1})
         .forEach((movie) => movies.push(movie))
         .then(() => {
             res.status(200).json(movies);
@@ -40,7 +39,7 @@ app.get('/movies', (req, res) => {
 app.get('/movies/:id', (req, res) => {
     if (ObjectId.isValid(req.params.id)) {
         db.collection('movies')
-            .findOne({ _id: new ObjectId(req.params.id) })  // Используем оператор new
+            .findOne({_id: new ObjectId(req.params.id)})  // Используем оператор new
             .then((doc) => {
                 res.status(200).json(doc);
             })
@@ -53,7 +52,7 @@ app.get('/movies/:id', (req, res) => {
 app.delete('/movies/:id', (req, res) => {
     if (ObjectId.isValid(req.params.id)) {
         db.collection('movies')
-            .deleteOne({ _id: new ObjectId(req.params.id) })  // Используем оператор new
+            .deleteOne({_id: new ObjectId(req.params.id)})  // Используем оператор new
             .then((doc) => {
                 res.status(200).json(doc);
             })
@@ -77,7 +76,7 @@ app.patch('/movies/:id', (req, res) => {
     if (ObjectId.isValid(req.params.id)) {
         db
             .collection('movies')
-            .updateOne({ _id: new ObjectId(req.params.id)} , { $set: req.body })  // Используем оператор new
+            .updateOne({_id: new ObjectId(req.params.id)}, {$set: req.body})  // Используем оператор new
             .then((doc) => {
                 res.status(200).json(doc);
             })
